@@ -13,3 +13,12 @@
     font-size: 0.875rem;
     padding: 0 0.6rem;
 }
+
+.timeline-item-name {
+    outline: none;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: text;
+}
