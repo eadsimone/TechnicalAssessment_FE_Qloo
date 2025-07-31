@@ -6,7 +6,10 @@ import './Timeline.css';
 
 const Timeline = ({ items }) => {
     const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 2 = zoom in, 0.5 = zoom out
-    const [localItems, setLocalItems] = useState(items);
+    const [localItems, setLocalItems] = useState(() => {
+        const saved = localStorage.getItem('timeline-items');
+        return saved ? JSON.parse(saved) : items;
+    });
 
     const { lanes, startDate, endDate } = useTimelineLayout(localItems);
 
@@ -27,6 +30,10 @@ const Timeline = ({ items }) => {
             return updated.sort((a, b) => new Date(a.start) - new Date(b.start));
         });
     };
+
+    useEffect(() => {
+        localStorage.setItem('timeline-items', JSON.stringify(localItems));
+    }, [localItems]);
 
     useEffect(() => {
         const el = wrapperRef.current;
