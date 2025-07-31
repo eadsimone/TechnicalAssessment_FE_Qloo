@@ -1,9 +1,12 @@
-import React from 'react';
-import useTimelineLayout from "../../hooks/useTimelineLayout";
-import TimelineItem from "../TimelineItem/TimelineItem";
+import React, {useEffect, useRef, useState} from 'react';
+import useTimelineLayout from '../../hooks/useTimelineLayout';
+import TimelineItem from '../TimelineItem/TimelineItem';
+import ZoomControls from "../ZoomControls/ZoomControls";
 import './Timeline.css';
 
 const Timeline = ({ items }) => {
+    const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 2 = zoom in, 0.5 = zoom out
+
     const { lanes, startDate, endDate } = useTimelineLayout(items);
 
     const totalDays = Math.max(
@@ -11,36 +14,72 @@ const Timeline = ({ items }) => {
         (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
     );
 
+    const scaledDays = totalDays / zoomLevel;
+
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        const el = wrapperRef.current;
+        if (!el) return;
+
+        const handleWheel = (e) => {
+            e.preventDefault();
+
+            setZoomLevel((z) => {
+                const direction = e.deltaY > 0 ? -1 : 1;
+                const factor = direction > 0 ? 2 : 0.5;
+                const next = z * factor;
+                return Math.min(Math.max(next, 0.25), 4);
+            });
+        };
+
+        el.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => {
+            el.removeEventListener('wheel', handleWheel);
+        };
+    }, []);
+
     return (
-        <div className="timeline-wrapper">
+        <div>
+            <ZoomControls
+                zoomLevel={zoomLevel}
+                onZoomIn={() => setZoomLevel((z) => Math.min(z * 2, 4))}
+                onZoomOut={() => setZoomLevel((z) => Math.max(z / 2, 0.25))}
+            />
+
             <div
-                className="timeline-container"
-                style={{ height: `${lanes.length * 40}px` }}
+                className="timeline-wrapper"
+                ref={wrapperRef}
             >
-                {lanes.map((lane, laneIndex) =>
-                    lane.map((item) => {
-                        const startOffset =
-                            (new Date(item.start) - new Date(startDate)) /
-                            (1000 * 60 * 60 * 24);
-                        const duration =
-                            (new Date(item.end) - new Date(item.start)) /
-                            (1000 * 60 * 60 * 24) +
-                            1;
-                        const leftPercent = (startOffset / totalDays) * 100;
-                        const widthPercent = (duration / totalDays) * 100;
+                <div
+                    className="timeline-container"
+                    style={{
+                        height: `${lanes.length * 2.5}rem`,
+                        minWidth: '100%',
+                    }}
+                >
+                    {lanes.map((lane, laneIndex) =>
+                        lane.map((item) => {
+                            const startOffset =
+                                (new Date(item.start) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+                            const duration =
+                                (new Date(item.end) - new Date(item.start)) / (1000 * 60 * 60 * 24) + 1;
+                            const leftPercent = (startOffset / scaledDays) * 100;
+                            const widthPercent = (duration / scaledDays) * 100;
 
-
-                        return (
-                            <TimelineItem
-                                key={item.id}
-                                item={item}
-                                top={`${laneIndex * 2.5}rem`}
-                                left={`${leftPercent}%`}
-                                width={`${widthPercent}%`}
-                            />
-                        );
-                    })
-                )}
+                            return (
+                                <TimelineItem
+                                    key={item.id}
+                                    item={item}
+                                    top={`${laneIndex * 2.5}rem`}
+                                    left={`${leftPercent}%`}
+                                    width={`${widthPercent}%`}
+                                />
+                            );
+                        })
+                    )}
+                </div>
             </div>
         </div>
     );
