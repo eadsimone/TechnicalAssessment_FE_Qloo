@@ -3,6 +3,7 @@ import useTimelineLayout from '../../hooks/useTimelineLayout';
 import TimelineItem from '../TimelineItem/TimelineItem';
 import ZoomControls from "../ZoomControls/ZoomControls";
 import './Timeline.css';
+import {getTotalDays} from "../../utils/dateUtils";
 
 const Timeline = ({ items }) => {
     const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 2 = zoom in, 0.5 = zoom out
@@ -13,10 +14,7 @@ const Timeline = ({ items }) => {
 
     const { lanes, startDate, endDate } = useTimelineLayout(localItems);
 
-    const totalDays = Math.max(
-        1,
-        (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
-    );
+    const totalDays = getTotalDays(startDate, endDate);
 
     const scaledDays = totalDays / zoomLevel;
 

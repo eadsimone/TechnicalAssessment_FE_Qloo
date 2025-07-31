@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import {sortByStartDate} from "../utils/dateUtils";
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 const MIN_WIDTH_PERCENT = 6;
@@ -6,10 +7,7 @@ const MAX_NAME_LENGTH = 20;
 
 const useTimelineLayout = (items) => {
     return useMemo(() => {
-        const sortedItems = [...items].sort(
-            (a, b) => new Date(a.start) - new Date(b.start)
-        );
-
+        const sortedItems = sortByStartDate(items);
         const allDates = items.flatMap(({ start, end }) => [
             new Date(start),
             new Date(end),

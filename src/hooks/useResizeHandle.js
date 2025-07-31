@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import {formatDate} from "../utils/dateUtils";
 
 const useResizeHandle = ({ resizing, item, startDate, totalDays, updateItem, setResizing, containerRef }) => {
     useEffect(() => {
@@ -12,7 +13,7 @@ const useResizeHandle = ({ resizing, item, startDate, totalDays, updateItem, set
             const daysOffset = Math.round(percent * totalDays);
             const newDate = new Date(startDate);
             newDate.setDate(newDate.getDate() + daysOffset);
-            const newDateStr = newDate.toISOString().split('T')[0];
+            const newDateStr = formatDate(newDate);
 
             if (resizing === 'left' && new Date(newDateStr) <= new Date(item.end)) {
                 updateItem({ ...item, start: newDateStr });
