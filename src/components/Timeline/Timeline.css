@@ -1,0 +1,14 @@
+.timeline-wrapper {
+    overflow-x: auto;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.timeline-container {
+    position: relative;
+    min-width: 100%;
+    height: auto;
+    padding: 0 2%;
+}

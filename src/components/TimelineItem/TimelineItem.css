@@ -1,0 +1,15 @@
+.timeline-item {
+    position: absolute;
+    height: 2.2rem;
+    background-color: #4a90e2;
+    color: white;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-radius: 0.3rem;
+    border: 1px solid darkgray;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    padding: 0 0.6rem;
+}
