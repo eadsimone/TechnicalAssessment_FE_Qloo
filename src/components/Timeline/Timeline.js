@@ -6,8 +6,9 @@ import './Timeline.css';
 
 const Timeline = ({ items }) => {
     const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 2 = zoom in, 0.5 = zoom out
+    const [localItems, setLocalItems] = useState(items);
 
-    const { lanes, startDate, endDate } = useTimelineLayout(items);
+    const { lanes, startDate, endDate } = useTimelineLayout(localItems);
 
     const totalDays = Math.max(
         1,
@@ -17,6 +18,15 @@ const Timeline = ({ items }) => {
     const scaledDays = totalDays / zoomLevel;
 
     const wrapperRef = useRef(null);
+
+    const updateItem = (updatedItem) => {
+        setLocalItems((prev) => {
+            const updated = prev.map((it) =>
+                it.id === updatedItem.id ? updatedItem : it
+            );
+            return updated.sort((a, b) => new Date(a.start) - new Date(b.start));
+        });
+    };
 
     useEffect(() => {
         const el = wrapperRef.current;
@@ -75,6 +85,9 @@ const Timeline = ({ items }) => {
                                     top={`${laneIndex * 2.5}rem`}
                                     left={`${leftPercent}%`}
                                     width={`${widthPercent}%`}
+                                    startDate={startDate}
+                                    totalDays={scaledDays}
+                                    updateItem={updateItem}
                                 />
                             );
                         })

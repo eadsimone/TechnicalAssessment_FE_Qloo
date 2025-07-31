@@ -22,3 +22,20 @@
     text-overflow: ellipsis;
     cursor: text;
 }
+
+.resize-handle {
+    width: 10px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    cursor: ew-resize;
+    z-index: 1;
+}
+
+.resize-handle.left {
+    left: 0;
+}
+
+.resize-handle.right {
+    right: 0;
+}
