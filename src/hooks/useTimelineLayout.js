@@ -6,33 +6,40 @@ const MAX_NAME_LENGTH = 20;
 
 const useTimelineLayout = (items) => {
     return useMemo(() => {
-        const sorted = [...items].sort((a, b) => new Date(a.start) - new Date(b.start));
+        const sortedItems = [...items].sort(
+            (a, b) => new Date(a.start) - new Date(b.start)
+        );
 
-        const allDates = items.flatMap(({ start, end }) => [start, end]);
-        const startDate = allDates.reduce((a, b) => (a < b ? a : b));
-        const endDate = allDates.reduce((a, b) => (a > b ? a : b));
-        const totalDays = (new Date(endDate) - new Date(startDate)) / DAY_MS;
+        const allDates = items.flatMap(({ start, end }) => [
+            new Date(start),
+            new Date(end),
+        ]);
+
+        const startDate = new Date(Math.min(...allDates));
+        const endDate = new Date(Math.max(...allDates));
+        const totalDays = Math.max(1, (endDate - startDate) / DAY_MS);
 
         const lanes = [];
 
-        sorted.forEach((item) => {
+        for (const item of sortedItems) {
             const start = new Date(item.start);
             const end = new Date(item.end);
             const duration = (end - start) / DAY_MS + 1;
 
             const widthPercent = (duration / totalDays) * 100;
-            const isShortAndLongName = widthPercent < MIN_WIDTH_PERCENT && item.name.length > MAX_NAME_LENGTH;
+            const isShortAndLongName =
+                widthPercent < MIN_WIDTH_PERCENT && item.name.length > MAX_NAME_LENGTH;
 
             let placed = false;
 
-            for (let lane of lanes) {
-                const conflict = lane.some((existing) => {
+            for (const lane of lanes) {
+                const hasConflict = lane.some((existing) => {
                     const existingStart = new Date(existing.start);
                     const existingEnd = new Date(existing.end);
                     return start <= existingEnd && end >= existingStart;
                 });
 
-                if (!conflict && !isShortAndLongName) {
+                if (!hasConflict && !isShortAndLongName) {
                     lane.push(item);
                     placed = true;
                     break;
@@ -42,7 +49,7 @@ const useTimelineLayout = (items) => {
             if (!placed) {
                 lanes.push([item]);
             }
-        });
+        }
 
         return { lanes, startDate, endDate };
     }, [items]);
